@@ -1,0 +1,229 @@
+{% extends "main/base.html" %} {% block title %}Sign Up{% endblock %} {% block content %}
+
+<h1>Sign Up</h1>
+
+<div class="form-body">
+    <form method="POST">
+	
+		{% if current_user.user_type == "admin" %}
+			<div class="form">
+				<label for="type">User Type
+					<span style="color: red; font-style: italic">&#42;</span>
+				</label>
+				<select id="type" name="type" required>
+					<option value="" disabled selected>Select User Option</option>
+					<option value="customer">Customer</option>
+					<option value="admin">Admin</option>
+					<option value="travel_agent">Travel Agent</option>
+				</select>
+			</div>
+		{% endif %}
+		
+		<!-- Admin-specific fields -->
+		<div id="admin-fields" class="form" style="display: none;">
+			<label for="department">Department
+				<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<select id="department" name="department">
+				<option value="" selected>Select User Type</option>
+				<option value="IT">IT Department</option>
+				<option value="Customer_Service">Customer Service</option>
+				<option value="Manager">Manager</option>
+			</select>
+		</div>
+
+		<!-- Travel Agent-specific fields -->
+		<div id="travel-agent-fields" style="display: none;">
+			<div class="form">
+				<label for="company">Company Name
+					<span style="color: red; font-style: italic">&#42;</span>
+				</label>
+				<input type="text" id="company" name="company" placeholder="Enter Company Name" />
+			</div>
+			<div class="form">
+				<label for="license">License
+					<span style="color: red; font-style: italic">&#42;</span>
+				</label>
+				<input type="text" id="license" name="license" placeholder="Enter License" />
+			</div>
+			<div class="form">
+				<label for="desc">Description
+				<span style="color: red; font-style: italic">&#42;</span>
+				</label>
+				<textarea id="desc" name="desc" rows="5" style="height: auto;" maxlength="2000"></textarea>
+				<div id="char_count">0 / 2000</div>
+			</div>
+		</div>
+
+        <div class="form">
+            <label for="email"
+                >Email Address
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="email" name="email" placeholder="Enter Email" required />
+        </div>
+        <div class="form">
+            <label for="first_name"
+                >First Name
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="text" name="first_name" placeholder="Enter First Name" required />
+        </div>
+        <div class="form">
+            <label for="last_name"
+                >Last Name
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="text" name="last_name" placeholder="Enter Last Name" required />
+        </div>
+        <div class="form">
+            <label for="password1"
+                >Password
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="password" name="password1" placeholder="Enter Password" required />
+        </div>
+		<div class="form" style="justify-content: center">
+            <p>Password must contain at least: 8 characters, 1 uppercase letter, 1 number, and 1 symbol</p>
+        </div>
+        <div class="form">
+            <label for="password2"
+                >Password (Confirm)
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="password" name="password2" placeholder="Confirm Password" required />
+        </div>		
+		<div class="form">
+            <label for="state">Phone
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+            <input type="text" name="phone" placeholder="Enter Phone Number" required />
+        </div>
+		
+		<div class="form">
+            <label for="address"
+                >Street Address
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="text" name="address" placeholder="E.G: 123 Main Street" required />
+        </div>
+		
+		<div id="postcode-container" class="form">
+			<label for="postcode">Postcode
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<input id="postcode" type="number" name="postcode" placeholder="Enter Postcode" required />
+		</div>
+
+		<div id="state-container" class="form" style="display: none;">
+			<label for="state">State
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<input id="state" type="text" readonly name="state" placeholder="Enter State" required />
+		</div>
+
+		<div id="locality-container" class="form" style="display: none;">
+			<label for="locality">Locality
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<select id="locality" name="locality" required></select>
+		</div>
+        <div class="form">
+            <label for="subscribe">Subscribe to Weekly Newsletter</label>
+            <input type="checkbox" id="subscribe" name="subscribe" checked />
+        </div>
+        <div class="form" style="justify-content: center">
+            <p>You can unsubscribe at any time on your dashboard.</p>
+        </div>
+        <br />
+        <div class="form">
+            <label for="agree"
+                >I agree to the Terms and Conditions
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="checkbox" id="agree" name="agree" required />
+        </div>
+        <br />
+		
+		{% if user.license %}
+			<input type="hidden" name="travel_agent_license" value="{{ user.license }}" />
+		{% endif %}
+		
+		<button type="submit" class="submit-btn">Submit</button>
+    </form>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	const description = document.getElementById('desc');
+	const char_count = document.getElementById('char_count');
+
+	description.addEventListener('input', function() {
+	  const current_length = description.value.length;
+	  char_count.textContent = `${current_length} / 2000`;
+	});
+})
+
+document.addEventListener("DOMContentLoaded", function() {
+    const userTypeSelect = document.getElementById('type');
+    const adminFields = document.getElementById('admin-fields');
+    const travelAgentFields = document.getElementById('travel-agent-fields');
+
+    userTypeSelect.addEventListener('change', function() {
+        const selectedType = this.value;
+
+        // Hide all specific fields initially
+        adminFields.style.display = 'none';
+        travelAgentFields.style.display = 'none';
+
+        // Show fields based on user type selection
+        if (selectedType === "admin") {
+            adminFields.style.display = 'flex'; // Make admin fields visible
+        } else if (selectedType === "travel_agent") {
+            travelAgentFields.style.display = 'block'; // Make travel agent fields visible
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  fetch('/static/suburbs.json')
+    .then(response => response.json())
+    .then(data => {
+      const postcodeField = document.getElementById('postcode');
+      const stateContainer = document.getElementById('state-container');
+      const localityContainer = document.getElementById('locality-container');
+      const stateField = document.getElementById('state');
+      const localitySelect = document.getElementById('locality');
+
+      if (postcodeField) {
+        postcodeField.addEventListener('input', function() {
+          const postcode = this.value.trim(); // Get and trim the entered postcode
+          localitySelect.innerHTML = '<option value="">Select Suburb</option>'; // Reset options
+          stateField.value = ''; // Clear state field
+          stateContainer.style.display = 'none'; // Hide state container by default
+          localityContainer.style.display = 'none'; // Hide locality container by default
+
+          const filteredLocalities = data.filter(entry => entry.postcode === postcode);
+
+          if (filteredLocalities.length > 0) {
+            stateField.value = filteredLocalities[0].state; // Set state value
+            stateContainer.style.display = 'flex'; // Show state container
+            localityContainer.style.display = 'flex'; // Show locality container
+
+            filteredLocalities.forEach(entry => {
+              const option = document.createElement('option');
+              option.value = entry.locality;
+              option.text = entry.locality;
+              localitySelect.appendChild(option); // Append each locality option
+            });
+          }
+        });
+      }
+    })
+    .catch(error => console.error('Error fetching suburb data:', error));
+});
+
+</script>
+
+{% endblock %}

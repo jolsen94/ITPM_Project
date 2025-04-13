@@ -1,0 +1,166 @@
+{% extends "main/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Lounges Available</h1>
+
+<!-- Search Bar -->
+<div>
+    <input 
+        type="text" 
+        id="loungeSearch" 
+        placeholder="Search for lounges (e.g., address, locality, state)" 
+        style="width: 100%; padding: 10px; margin-bottom: 20px;" 
+    />
+</div>
+
+<div class="notes-div">
+    <ul class="note-list" id="loungeList">
+        {% for lounge in lounges %}
+        {% if lounge.status == "Open" %}
+        <li class="notes">
+            <a href="{{ url_for('lounges.view_lounge', lounge_id=lounge.id) }}">
+                {{ lounge.description }}
+                <br />
+                {{ lounge.address }}, {{ lounge.locality }}, {{ lounge.state }} {{ lounge.postcode }}
+				<br /><br />
+				{% if lounge.address in lounge_images %}
+				{% set images = lounge_images[lounge.address] %}
+				<div class="img-container">
+					<img class="event-pic" src="{{ url_for('static', filename=images[0]) }}" />
+					{% if images|length > 1 %}
+					<div class="image-overlay">+{{ images|length - 1 }}</div>
+					{% endif %}
+				</div>
+				{% endif %}
+			</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+
+
+{% if current_user.user_type == "admin" %}
+	<div class="form-body">
+		<form method="GET" action="{{ url_for('lounges.create_lounge') }}">
+			<button type="submit" class="submit-btn">Add New Lounge</button>
+		</form>
+	</div>
+
+	<h1>Closed Lounges</h1>
+	<div class="notes-div">
+		<ul class="note-list">
+			{% for lounge in lounges %}
+				{% if lounge.status == "Closed" %}
+					<li class="note">
+						{{ lounge.description }}
+						<br />
+						{{ lounge.address }}
+						{% if lounge.address in lounge_images %}
+							{% set images = lounge_images[lounge.address] %}
+							<div class="img-container">
+								<img
+									class="event-pic"
+									src="{{ url_for('static', filename=images[0]) }}" />
+								{% if images|length > 1 %}
+								<div class="image-overlay">+{{ images|length - 1 }}</div>
+								{% endif %}
+							</div>
+						{% endif %}
+						
+						<div class="form-body">
+							<form action="{{ url_for('lounges.delete_lounge') }}" method="POST">
+								<input type="hidden" name="id" value="{{ lounge.id }}">
+								<button type="submit" class="close">
+									<span aria-hidden="true">Delete Lounge</span>
+								</button>
+							</form>
+						</div>
+						<div class="form-body">
+							<form action="{{ url_for('lounges.reopen_lounge') }}" method="POST">
+								<input type="hidden" name="lounge_id" value="{{ lounge.id }}">
+								<button type="submit" class="close">
+									<span aria-hidden="true">Re-Open Lounge</span>
+								</button>
+							</form>
+						</div>
+					</li>
+				{% endif %}
+			{% endfor %}
+		</ul>
+	</div>
+{% endif %}
+
+<h1>Travel Agents Near You!</h1>
+
+<!-- Search Bar -->
+<div>
+    <input 
+        type="text" 
+        id="agentSearch" 
+        placeholder="Search for lounges (e.g., address, locality, state)" 
+        style="width: 100%; padding: 10px; margin-bottom: 20px;" 
+    />
+</div>
+
+<div class="notes-div">
+	<ul class="note-list" id="agentList">
+		{% for agent in travel_agents %}
+		<li class="notes">
+			<a href="{{ url_for('travel_agents.view_agent', agent_company=agent.company) }}">
+				{{ agent.license }}
+				<br />
+				{{ agent.address }}
+				<br />
+				{{ agent.company }}
+				<br /><br />
+				{% if agent.license in travel_agents_images %}
+				{% set images = travel_agents_images[agent.license] %}
+				<div class="img-container">
+					<img class="event-pic" src="{{ url_for('static', filename=images[0]) }}" />
+					{% if images|length > 1 %}
+					<div class="image-overlay">+{{ images|length - 1 }}</div>
+					{% endif %}
+				</div>
+				{% endif %}
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+		const searchInput = document.getElementById("loungeSearch");
+		const loungeList = document.getElementById("loungeList");
+
+		searchInput.addEventListener("input", function () {
+			const searchQuery = searchInput.value.toLowerCase().trim();
+
+			// Filter items directly from loungeList
+			Array.from(loungeList.getElementsByTagName("li")).forEach(item => {
+				const loungeText = item.textContent.toLowerCase();
+				item.style.display = loungeText.includes(searchQuery) ? "block" : "none";
+			});
+		});
+	});
+
+	document.addEventListener("DOMContentLoaded", () => {
+		const searchInput = document.getElementById("agentSearch");
+		const agentList = document.getElementById("agentList");
+
+		searchInput.addEventListener("input", function () {
+			const searchQuery = searchInput.value.toLowerCase().trim();
+
+			// Filter items directly from agentList
+			Array.from(agentList.getElementsByTagName("li")).forEach(item => {
+				const loungeText = item.textContent.toLowerCase();
+				item.style.display = loungeText.includes(searchQuery) ? "block" : "none";
+			});
+		});
+	});
+</script>
+
+{% endblock %}

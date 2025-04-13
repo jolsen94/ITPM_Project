@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}" />
+
+        <script>
+            function closeAlert(button) {
+                var alert = button.parentElement;
+                alert.style.display = "none";
+            }
+
+            function deleteNote(note_id) {
+                fetch("/delete-note", {
+                    method: "POST",
+                    body: JSON.stringify({ note_id: note_id }),
+                }).then((_res) => {
+                    window.location.href = "/";
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+        <!-- |============HEADER============| -->
+        <nav class="navbar">
+            <div class="navbar-collapse">
+                <div class="nav">
+					<a class="nav-item" href="{{ url_for('views.about') }}">About Us</a>
+					<a class="nav-item" href="{{ url_for('views.general_info') }}">General Info</a>
+					
+					{% if user.is_authenticated and user.is_verified %}
+						<!-- User is logged in and verified -->
+						{% if user.user_type == "admin" %}
+							<a class="nav-item" href="{{ url_for('auth.sign_up') }}">Create new user</a>
+							<a class="nav-item" href="{{ url_for('bookings.view_all_bookings') }}">View All Bookings</a>
+						{% endif %}
+						{% if user.user_type == "travel_agent" %}
+							<a class="nav-item" href="{{ url_for('auth.sign_up') }}">Add new client</a>
+						{% endif %}
+						<a class="nav-item" href="{{ url_for('auth.dashboard') }}">Dashboard</a>
+						<a class="nav-item" href="{{ url_for('auth.logout') }}">Logout</a>
+					{% elif user.is_authenticated and not user.is_verified %}
+						<!-- User is logged in but not verified -->
+						<a class="nav-item" href="{{ url_for('auth.verify_account') }}">Verify Account</a>
+					{% else %}
+						<!-- User is not logged in -->
+						<a class="nav-item" href="{{ url_for('auth.login') }}">Login</a>
+						<a class="nav-item" href="{{ url_for('auth.sign_up') }}">Sign Up</a>
+					{% endif %}
+				</div>
+                <div class="logo">
+					<a href="/">
+                    <img class="logo-picture" src="{{ url_for('static', filename='/images/FDA_logo.png') }}" />
+					</a>
+                </div>
+            </div>
+        </nav>
+        <!-- |============ALERTS============| -->
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %} {% if category == "error" %}
+        <div class="alert error" role="alert">
+            {{ message}}
+            <button type="button" class="close" onclick="closeAlert(this)">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% elif category == "success" %}
+        <div class="alert success" role="alert">
+            {{ message}}
+            <button type="button" class="close" onclick="closeAlert(this)">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% elif category == "info" %}
+        <div class="alert info" role="alert">
+            {{ message}}
+            <button type="button" class="close" onclick="closeAlert(this)">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %} {% endfor %} {% endif %} {% endwith %}
+
+        <!-- |============BODY============| -->
+        <div>{% block content %} {% endblock %}</div>
+
+        <!-- |============FOOTER============| -->
+        <div class="navbar">
+            <div class="nav container">
+                <div class="form-body">
+                    <form action="{{ url_for('auth.subscribe') }}" method="POST">
+                        <div class="form">
+                            <p>For weekly updates on events, subscribe to our newsletter!</p>
+                        </div>
+                        <div class="notes-div">
+                            {% if not is_subscribed %}
+                            <input type="email" name="email" placeholder="Enter email address" value="{{ user.email if user.is_authenticated else '' }}" />
+                            <button type="submit" class="submit-btn">Subscribe!</button>
+                            {% else %}
+                            <h3>You've already subscribed with {{ user.email }}</h3>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="alert">
+                <div class="navbar-collapse">
+                    <div class="nav">
+                        <a class="nav-item">Call Us</a>
+                        <a class="nav-item">Email Us</a>
+                        <a class="nav-item">Facebook</a>
+                        <a class="nav-item">Instagram</a>
+                        <a class="nav-item">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+            <div class="alert">
+                <div class="navbar-collapse">
+                    <div class="nav">
+                        <a>&copy; 2025 All Rights Reserved</a>
+                        <a class="nav-item" href="{{ url_for('views.privacy_policy', _external=True) }}">Privacy Policy</a>
+						<a class="nav-item" href="{{ url_for('views.contact_us', _external=True) }}">Contact Us</a>
+                        <a class="nav-item" href="{{ url_for('views.terms_condition', _external=True) }}">Terms and Conditions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

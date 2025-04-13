@@ -1,0 +1,51 @@
+{% extends "main/base.html" %} {% block title %}Remove Account{% endblock %}
+{% block content %}
+
+<h1>Remove Account</h1>
+<div class="form-body">
+    <form method="POST" action="{{ url_for('auth.remove_account') }}">
+        <p>
+            Please be aware that any notes, events, or forum replies made on
+            this account will not be removed.
+        </p>
+        <p>
+            Please be aware that you must unsubscribe in order to stop receiving
+            our weekly newsletters.
+        </p>
+        <div class="form">
+            <label for="email"
+                >Email Address
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input
+                type="email"
+                name="email"
+                placeholder="Enter Email"
+                required
+            />
+        </div>
+        <div class="form">
+            <label for="password"
+                >Password
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter Password"
+                required
+            />
+        </div>
+        <div class="form">
+            <label for="agree"
+                >I agree that all my saved information will be removed from this
+                site.
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="checkbox" id="agree" name="agree" required />
+        </div>
+        <br />
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+</div>
+{% endblock %}

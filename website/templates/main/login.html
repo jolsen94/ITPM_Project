@@ -1,0 +1,25 @@
+{% extends "main/base.html" %} {% block title %}Login{% endblock %} {% block content %}
+
+<h1>Login</h1>
+<div class="form-body">
+    <form method="POST">
+        <div class="form">
+            <label for="email">Email Address</label>
+            <input type="email" name="email" placeholder="Enter Email" />
+            <!-- name is the field which identifies this input in the database -->
+        </div>
+
+        <div class="form">
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="Enter Password" />
+        </div>
+
+        <br />
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
+
+    <!-- WE SHOULD INCLUDE GOOGLE RECAPTCHA SECURITY
+	INCLUDING GOOGLE'S PRIVACY POLICY AND TERMS AND CONDITIONS -->
+</div>
+
+{% endblock %}

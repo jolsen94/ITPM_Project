@@ -1,0 +1,123 @@
+{% extends "main/base.html" %} {% block title %}Verify Account{% endblock %}
+{% block content %}
+
+<h1>Verify Account</h1>
+<div id="message-div"></div>
+<div class="form-body">
+    <form
+        method="POST"
+        action="{{ url_for('auth.verify_account') }}"
+        id="verify-account-form"
+    >
+        <div class="form" id="email-div">
+            <label for="email"
+                >Email Address
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="email" name="email" placeholder="Enter Email" />
+        </div>
+        <div
+            class="form"
+            id="code-div"
+            {%
+            if
+            step
+            !="code"
+            %}style="display: none;"
+            {%
+            endif
+            %}
+        >
+            <label for="code"
+                >Enter Code
+                <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="number" name="code" min="10000" max="99999" />
+        </div>
+        <br />
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document
+            .getElementById("verify-account-form")
+            .addEventListener("submit", function (event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                const message_div = document.getElementById("message-div");
+
+                fetch('{{ url_for("auth.verify_account") }}', {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        handleServerResponse(data, message_div);
+                        if (data.step === "complete") {
+                            clearFormFields();
+                            clearCookies();
+                        }
+                    })
+                    .catch((error) => console.error("Error:", error));
+            });
+
+        function handleServerResponse(data, message_div) {
+            console.log("Server response:", data); // Log server response for debugging
+            displayMessage(data.message, data.category, message_div);
+
+            switch (data.step) {
+                case "code":
+                    showDiv("code-div", "code");
+                    break;
+                case "complete":
+                    console.log("Account Successfully Verified");
+                    window.location.href = '{{ url_for("views.home") }}';
+                    break;
+                default:
+                    console.log("Unexpected step:", data.step); // Log unexpected steps
+            }
+        }
+
+        function showDiv(divId, ...focusInputNames) {
+            var div = document.getElementById(divId);
+            div.style.display = "block";
+            focusInputNames.forEach((name) => {
+                var input = document.querySelector(`input[name="${name}"]`);
+                if (input) {
+                    input.setAttribute("required", true);
+                }
+            });
+            var firstInput = document.querySelector(
+                `input[name="${focusInputNames[0]}"]`,
+            );
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 100); // Delay to ensure visibility
+            }
+        }
+
+        function displayMessage(message, category, message_div) {
+            message_div.className = `flash-message ${category}`;
+            message_div.innerText = message;
+            message_div.style.display = "block";
+            setTimeout(() => {
+                message_div.style.display = "none";
+            }, 5000); // Hide the message after 5 seconds
+        }
+
+        function clearFormFields() {
+            document.getElementById("verify-account-form").reset();
+        }
+
+        function clearCookies() {
+            document.cookie.split(";").forEach(function (c) {
+                document.cookie =
+                    c.trim().split("=")[0] +
+                    "=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
+            });
+        }
+    });
+</script>
+
+{% endblock %}
