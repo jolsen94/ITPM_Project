@@ -1,0 +1,86 @@
+/* <-------- IMAGES -------> */
+
+img {
+	border-radius: 8px;
+}
+
+.img-container {
+	display: inline-block;
+	position: relative;
+}
+
+.profile-picture {
+	height: 200px;
+}
+
+.logo {
+	padding: 5px;
+}
+
+.logo-picture {
+	height: 150px;
+}
+
+.event-pic {
+	display: block;
+	width: 100%;
+	transition: transform 0.3s ease;
+	cursor: pointer;
+	max-height: 200px;
+}
+
+.event-pic:hover {
+	transform: scale(1.08);
+}
+
+.image-overlay {
+	position: absolute;
+	margin: 10px;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	padding: 5px 10px;
+	border-radius: 10px;
+	font-size: 14px;
+	pointer-events: none;
+	width: auto;
+	height: auto;
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgb(0, 0, 0);
+	background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+	margin: auto;
+	display: block;
+	width: 80%;
+	max-width: 1080px;
+}
+
+.arrows {
+	cursor: pointer;
+	top: 50%;
+	width: auto;
+	padding: 16px;
+	margin-top: -22px;
+	color: white;
+	font-weight: bold;
+	font-size: 20px;
+	transition: 0.6s ease;
+	border-radius: 5px;
+	user-select: none;
+}
+
+@keyframes zoom {
+	from {transform: scale(0)}
+	to {transform: scale(1.0)}
+}

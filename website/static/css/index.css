@@ -1,0 +1,21 @@
+/* <-------- BODY AND BASE -------> */
+
+/* 
+Blue = #34457f
+Orange = #f5641e
+*/
+
+body {
+	background-color: white;
+	font-family: 'Lora', sans-serif;
+	font-size: 1rem;
+	box-sizing: border-box;
+	padding: 0px 180px 0px 180px;
+	margin: 0;
+}
+
+
+button {
+	border-radius: 8px;
+}
+
