@@ -1,0 +1,10 @@
+{% extends "email/email_base.html" %} {% block email_content %}
+
+<h1>You changed your details!</h1>
+<p>We've updated our records to reflect your new details.</p>
+<p>If this wasn't you, we'd recommend changing your password and contacting us immediately.</p>
+<a style="padding: 5px; color: black; text-decoration: none; background-color: orange; margin-right: 5px; border-radius: 5px; margin: 15px" href="/login">Login</a>
+<a style="padding: 5px; color: black; text-decoration: none; background-color: orange; margin-right: 5px; border-radius: 5px; margin: 15px" href="/change-password">Change Password</a>
+<a style="padding: 5px; color: black; text-decoration: none; background-color: orange; margin-right: 5px; border-radius: 5px; margin: 15px" href="/contact-us">Contact Us</a>
+
+{% endblock %}

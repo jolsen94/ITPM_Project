@@ -1,0 +1,11 @@
+{% extends 'email/email_base.html' %} {% block email_content %}
+
+<h1>Verification Page!</h1>
+<p>Thank you for signing up to Psych Soc UoW!</p>
+<p>Here is your verification code:</p>
+<h1>{{ code }}</h1>
+<p>This code only lasts 3 minutes</p>
+
+<a href="/confirm_verification">Verify</a>
+
+{% endblock %}
