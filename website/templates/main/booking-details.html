@@ -1,0 +1,95 @@
+{% extends "main/base.html" %} 
+{% block title %}Booking Details{% endblock %} 
+
+{% block content %}
+
+	<h1>{{ booking.lounge.address }}, {{ booking.lounge.state }} {{ booking.lounge.postcode }}</h1>
+	<p>{{ booking.lounge.description }}</p>
+
+    {% if lounge_images %}
+    <div class="img-container">
+		<img class="event-pic"
+			src="{{ url_for('static', filename=lounge_images[0]) }}"
+			onclick="open_image_modal()" />
+        {% if lounge_images | length > 1 %}
+        <div class="image-overlay">+{{ lounge_images | length - 1 }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+	
+	<h1>Booking Details</h1>
+	
+<div class="notes-div">
+	<ul class="note-list">
+		<li>
+			<a class="note">
+				<div class="note-list">
+					<label for="entry_date">From: </label>{{ booking.entry_date }}
+					<br />
+					<label for="exit_date">To: </label>{{ booking.exit_date }}						
+					<br />
+					<label for="flight_id">Flight ID: </label>{{ booking.flight_id }}
+					<br />
+					<label for="guests_qty">Number of Guests </label>{{ booking.guests_qty }}
+					<br />
+					<label for="dietary_req">Dietary Needs: </label>{{ booking.dietary_req }}
+					<br />
+				</div>
+			</a>
+		</li>
+		<button class="submit-btn" onclick="open_details_modal()">Change Booking Details</button>
+	</ul>
+</div>
+
+<button class="submit-btn" onclick="{{ url_for('bookings.delete_booking') }}">Cancel Booking</button>
+
+<div id="detailsModal" class="modal">
+	<div class="modal-content">
+		<button class="close" onclick="close_details_modal()" aria-hidden="true">&times;</button>
+		<div class="form-body">
+			<form method="POST" action="{{ url_for('bookings.change_booking') }}">
+				<input type="hidden" name="user_id" value="{{ booking.user_id }}" required />
+				<input type="hidden" name="travel_agent_license" value="{{ booking.user.travel_agent_license }}" required />
+				<div class="form">
+					<label for="first_name">From</label>
+					<input type="date" name="entry_date" value="{{ booking.entry_date }}" required />
+				</div>
+				<div class="form">
+					<label for="last_name">To</label>
+					<input type="date" name="exit_date" value="{{ booking.exit_date }}" required />
+				</div>
+				<div class="form">
+					<label for="flight_id">Flight ID</label>
+					<input type="text" name="flight_id" value="{{ booking.flight_id }}" readonly required />
+				</div>
+				<div id="email_change_checkbox"></div>
+				<div class="form">
+					<label for="guests_qty">Number of Guests</label>
+					<input type="number" name="guests_qty" value="{{ booking.guests_qty }}" required />
+				</div>
+				<div class="form">
+					<label for="dietary_req">Dietary Needs</label>
+					<select name="dietary_req" id="dietary_req">
+						<option value="none" selected>No requirements</option>
+						<option value="vegetarian">Vegetarian</option>
+						<option value="vegan">Vegan</option>
+						<option value="gluten_free">Gluten-Free</option>
+						<option value="dairy_free">Dairy-Free</option>
+						<option value="nut_allergy">Nut Allergy</option>
+					</select>
+				</div>
+				<button type="submit" class="submit-btn">Save Changes</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL STRUCTURE FOR IMAGE CAROUSEL -->
+<div id="imageModal" class="modal" data-images='{{ lounge_images | tojson }}'>
+    <button class="close" onclick="close_image_modal()" aria-hidden="true">&times;</button>
+    <img class="modal-content" id="modalImage" />
+    <a class="arrows" aria-hidden="true" onclick="change_image(-1)">&lt;</a>
+    <a class="arrows" aria-hidden="true" onclick="change_image(1)">&gt;</a>
+</div>
+
+{% endblock %}
