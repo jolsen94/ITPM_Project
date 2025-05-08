@@ -1,0 +1,23 @@
+{% block profile %}
+
+<h1>Booking Window</h1>
+
+<div class="notes-div">
+	<ul class="note-list">
+		{% for booking in bookings %}
+			<li class="note">
+				<a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}">
+					From: {{ booking.entry_date }} <br />To: {{ booking.exit_date }}
+					<br />
+					Lounge Details:
+					Address: {{ booking.lounge.address }}, {{ booking.lounge.state }} {{ booking.lounge.postcode }}
+					<br />
+					Number of Guests: {{ booking.guests_qty }}
+				</a>
+			</li>
+		{% endfor %}
+	</ul>
+</div>
+<p>You have {{ current_user.bookings|length }} booking(s).</p>
+
+{% endblock %}

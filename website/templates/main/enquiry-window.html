@@ -1,0 +1,59 @@
+{% block profile %}
+
+<h1>Enquiry Window</h1>
+
+<!-- Search Bar -->
+<div>
+    <input 
+        type="text" 
+        id="enquirySearch" 
+        placeholder="Search for lounges (e.g., address, locality, state)" 
+        style="width: 100%; padding: 10px; margin-bottom: 20px;" 
+    />
+</div>
+
+<div class="notes-div">
+	<ul class="note-list" id="enquiryList">
+		{% for enquiry in enquiries %}
+			<li class="notes" style="cursor:pointer">
+				<a href="{{ url_for('views.view_enquiry', enquiry_id=enquiry.id) }}">
+				<b>Topic: </b>{{ enquiry.topic }}
+				<br />
+				<b>Message: </b>{{ enquiry.message }}
+				<br />
+				<h3>User Details</h3>
+				{% if enquiry.user_id %}
+					<b>Name: </b>{{ enquiry.user.first_name }} {{ enquiry.user.last_name }}
+					<br />
+					<b>Email: </b>{{ enquiry.user.email }}
+					<br />
+					<b>Phone: </b>{{ enquiry.user.phone }}
+					<br />
+				{% else %}
+					<h3>The user has deleted their account. Future replies will not be delivered through this system.</h3>
+				{% endif %}
+				</a>
+			</li>
+		{% endfor %}
+	</ul>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+		const searchInput = document.getElementById("enquirySearch");
+		const enquiryList = document.getElementById("enquiryList");
+
+		searchInput.addEventListener("input", function () {
+			const searchQuery = searchInput.value.toLowerCase().trim();
+
+			// Filter items directly from enquiryList
+			Array.from(enquiryList.getElementsByTagName("li")).forEach(item => {
+				const loungeText = item.textContent.toLowerCase();
+				item.style.display = loungeText.includes(searchQuery) ? "block" : "none";
+			});
+		});
+	});
+	
+</script>
+
+{% endblock %}
