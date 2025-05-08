@@ -1,0 +1,58 @@
+{% extends "main/base.html" %} 
+{% block title %}All Bookings{% endblock %} 
+
+{% block content %}
+
+<h1>Search All Bookings</h1>
+
+<!-- Search Bar -->
+<div>
+    <input 
+        type="text" 
+        id="bookingSearch" 
+        placeholder="Search bookings by attributes (e.g., date, flight ID, address)" 
+        style="width: 100%; padding: 10px; margin-bottom: 20px;" 
+    />
+</div>
+
+<!-- Lounge Section -->
+<h1>All Lounges with Bookings</h1>
+<div class="notes-div" id="loungesSection">
+    <ul class="note-list" id="loungesList">
+        {% for lounge in lounges %}
+        <li class="lounge-item" data-lounge-id="{{ lounge.id }}">
+            <a href="{{ url_for('lounges.view_lounge', lounge_id=lounge.id) }}">
+                <b>Lounge:</b> {{ lounge.address }}, {{ lounge.locality }}, {{ lounge.state }} {{ lounge.postcode }}
+                <br />
+                <b>Capacity:</b> {{ lounge.max_capacity }}  ||  <b>Status:</b> {{ lounge.status }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Booking Section -->
+<h1>All Bookings</h1>
+<div class="notes-div" id="bookingsSection">
+    <ul class="note-list" id="bookingsList">
+        {% for booking in bookings %}
+        <li class="booking-item" data-booking-id="{{ booking.id }}" data-lounge-id="{{ booking.lounge_id }}">
+            <a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}">
+                <b>Booking ID:</b> {{ booking.id }}  ||  <b>Status:</b> {{ booking.status }}
+                <br />
+                <b>From:</b> {{ booking.entry_date }}  ||  <b>To:</b> {{ booking.exit_date }}
+                <br />
+                <b>Flight ID:</b> {{ booking.flight_id }}
+                <br />
+                <b>Number of Guests:</b> {{ booking.guests_qty }}
+                <br />
+                <b>Dietary Needs:</b> {{ booking.dietary_req }}
+                <br />
+                <b>Customer ID:</b> {{ booking.user.id }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
