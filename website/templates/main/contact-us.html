@@ -1,0 +1,124 @@
+{% extends "main/base.html" %} 
+{% block title %}Contact Us{% endblock %} 
+
+{% block content %}
+
+<div class="form-body">
+	<form method="POST" action="{{ url_for('views.enquiry') }}">
+		<input type="hidden" name="user_id" value="{{ user.id }}" />
+		<input type="hidden" name="is_admin" value="True" />
+		<div class="form">
+			<label for="type">Topic
+				<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<select id="topic" name="topic" required>
+				<option value="" disabled selected>Select Topic</option>
+				{% if lounge %}
+				<option value="lounge_enquiry">Lounge Enquiry</option>
+				{% endif %}
+				<option value="account enquiry">Account Enquiry</option>
+				<option value="contact">Contact</option>
+			</select>
+		</div>
+		<div class="form">
+			<label for="message">Message
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<textarea id="message" name="message" rows="5" style="height: auto;" maxlength="2000" required></textarea>
+			<div id="char_count">0 / 2000</div>
+		</div>
+		<div class="form">
+			<label for="agree"
+				>I agree to being contacted to resolve this enquiry
+				<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<input type="checkbox" id="agree" name="agree" required checked />
+		</div>
+		{% if not user.is_authenticated %}
+		<h3>Replies to your enquiries can be viewed on your dashboard.</h3>
+		<a href="{{ url_for('auth.login') }}">
+			<button type="button" class="submit-btn">Login to send an enquiry!</button>
+		</a>
+		{% else %}
+		<button type="submit" class="submit-btn">Submit Enquiry</button>
+		{% endif %}
+	</form>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const submitButton = document.querySelector(".submit-btn");
+		const messageTextarea = document.getElementById("message");
+		let profaneWords = [];
+
+		fetch('/static/profanity_wordlist.txt')
+		.then(response => {
+			return response.text();
+		})
+		.then(data => {
+			profaneWords = data.split("\n").map(word => word.trim());
+		})
+		.catch(error => console.error("Error fetching profanity list:", error));
+		
+		messageTextarea.addEventListener("input", function () {
+			const messageContent = messageTextarea.value.toLowerCase(); // Normalize input to lowercase
+			let containsProfanity = false;
+
+			// Check for profanity (single words and phrases)
+			profaneWords.forEach(word => {
+				if (word) { // Ensure the word is not empty
+					const regex = new RegExp(`\\b${word}\\b`, 'i'); // Match whole words/phrases
+					if (regex.test(messageContent)) {
+						containsProfanity = true;
+					}
+				}
+			});
+
+			// Disable or enable the submit button based on profanity detection
+			if (containsProfanity) {
+				submitButton.disabled = true; // Disable the button
+				submitButton.style.backgroundColor = "gray"; // Optional: Visual cue
+			} else {
+				submitButton.disabled = false; // Enable the button
+				submitButton.style.backgroundColor = ""; // Reset visual cue
+			}
+		});
+	});
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const topicDropdown = document.getElementById("topic");
+        const messageTextarea = document.getElementById("message");
+        const loungeAddress = "{{ lounge.address }}, {{ lounge.locality }}";
+
+        topicDropdown.addEventListener("change", function () {
+            if (topicDropdown.value === "lounge_enquiry") {
+                // Insert the pre-filled, non-editable prefix
+                const prefix = `Message regarding Lounge: ${loungeAddress}\n\n`;
+                messageTextarea.value = prefix;
+
+                // Lock the prefix but allow editing after it
+                messageTextarea.addEventListener("input", function () {
+                    if (!messageTextarea.value.startsWith(prefix)) {
+                        messageTextarea.value = prefix; // Restore the prefix if changed
+                    }
+                });
+            } else {
+                // Clear the field and allow full editing for other topics
+                messageTextarea.value = "";
+                messageTextarea.removeEventListener("input", arguments.callee);
+            }
+        });
+    });
+
+	document.addEventListener('DOMContentLoaded', function() {
+		const message = document.getElementById('message');
+		const char_count = document.getElementById('char_count');
+
+		message.addEventListener('input', function() {
+		  const current_length = message.value.length;
+		  char_count.textContent = `${current_length} / 2000`;
+		});
+	})
+</script>
+
+{% endblock %}

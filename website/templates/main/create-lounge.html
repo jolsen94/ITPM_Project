@@ -1,0 +1,99 @@
+{% extends "main/base.html" %} 
+{% block title %}Add New Lounge{% endblock %} 
+
+{% block content %}
+
+<h1>Add New Lounge!</h1>
+
+<div class="form-body">
+    <form method="POST">
+        <h3>All Fields are Required!</h3>
+		<div class="form">
+            <label for="description">Description
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+            <textarea id="desc" name="description" rows="5" style="height: auto;" maxlength="2000" required></textarea>
+            <div id="char_count">0 / 2000</div>
+        </div>
+		<div class="form">
+            <label for="address">Address
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+            <input type="text" name="address" required />
+        </div>
+        <div id="postcode-container" class="form">
+			<label for="postcode">Postcode
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<input id="postcode" type="number" name="postcode" placeholder="Enter Postcode" required />
+		</div>
+
+		<div id="state-container" class="form" style="display: none;">
+			<label for="state">State
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<input id="state" type="text" readonly name="state" placeholder="Enter State" required />
+		</div>
+
+		<div id="locality-container" class="form" style="display: none;">
+			<label for="locality">Locality
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<select id="locality" name="locality" required></select>
+		</div>
+        <br />
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  fetch('/static/suburbs.json')
+    .then(response => response.json())
+    .then(data => {
+      const postcodeField = document.getElementById('postcode');
+      const stateContainer = document.getElementById('state-container');
+      const localityContainer = document.getElementById('locality-container');
+      const stateField = document.getElementById('state');
+      const localitySelect = document.getElementById('locality');
+
+      if (postcodeField) {
+        postcodeField.addEventListener('input', function() {
+          const postcode = this.value.trim(); // Get and trim the entered postcode
+          localitySelect.innerHTML = '<option value="">Select Suburb</option>'; // Reset options
+          stateField.value = ''; // Clear state field
+          stateContainer.style.display = 'none'; // Hide state container by default
+          localityContainer.style.display = 'none'; // Hide locality container by default
+
+          const filteredLocalities = data.filter(entry => entry.postcode === postcode);
+
+          if (filteredLocalities.length > 0) {
+            stateField.value = filteredLocalities[0].state; // Set state value
+            stateContainer.style.display = 'flex'; // Show state container
+            localityContainer.style.display = 'flex'; // Show locality container
+
+            filteredLocalities.forEach(entry => {
+              const option = document.createElement('option');
+              option.value = entry.locality;
+              option.text = entry.locality;
+              localitySelect.appendChild(option); // Append each locality option
+            });
+          }
+        });
+      }
+    })
+    .catch(error => console.error('Error fetching suburb data:', error));
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+	const description = document.getElementById('desc');
+	const char_count = document.getElementById('char_count');
+
+	description.addEventListener('input', function() {
+	  const current_length = description.value.length;
+	  char_count.textContent = `${current_length} / 2000`;
+	});
+})
+</script>
+
+{% endblock %}
