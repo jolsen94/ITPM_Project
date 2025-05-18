@@ -1,0 +1,126 @@
+{% extends "main/base.html" %} 
+{% block title %}Lounge Details{% endblock %} 
+
+{% block content %}
+
+	<div class="note-list">
+		<h1>{{ lounge.address }}</h1>
+		<p>{{ lounge.description }}</p>
+	</div>
+
+	{% if lounge_images %}
+	<div class="img-container">
+		<img class="event-pic"
+			src="{{ url_for('static', filename=lounge_images[0]) }}"
+			onclick="open_modal()" />
+		{% if lounge_images | length > 1 %}
+		<div class="image-overlay">+{{ lounge_images | length - 1 }}</div>
+		{% endif %}
+	</div>
+	{% endif %}
+	
+	{% if bookings %}
+	<h3>You have some existing bookings at this lounge:</h3>
+	<div class="notes-div">
+		<ul class="note-list">          
+			{% for booking in bookings %}
+			<li>
+				<a class="notes" href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}">
+					<b>From: </b>{{ booking.entry_date }}
+					<br />
+					<b>To: </b>{{ booking.exit_date }}
+					<br />
+					<b>Flight ID: </b>{{ booking.flight_id }}
+					<br />
+					<b>Number of Guests: </b>{{ booking.guests_qty }}
+					<br />
+					<b>Dietary Needs: </b>{{ booking.dietary_req }}
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% elif not user.is_authenticated %}
+	<div class="form-body">
+		<a href="{{ url_for('auth.login') }}">
+			<button type="submit" class="submit-btn">Login to make a Booking!</button>
+		</a>
+	</div>
+	{% else %}
+	<div class="form-body">
+		<a href="{{ url_for('bookings.create_booking', lounge_id=lounge.id) }}">
+			<button type="submit" class="submit-btn">Make a Booking!</button>
+		</a>
+	</div>
+	{% endif %}
+	
+	<br /><br />
+	
+	<div class="form-body">
+		<form action="{{ url_for('views.contact_us') }}" method="POST">
+			<input type="hidden" name="lounge_id" value="{{ lounge.id }}" />
+			<button type="submit" class="submit-btn">Have a question about this lounge?</button>
+		</form>
+	</div>
+	
+	{% if user.user_type == "admin" %}
+	<div class="form-body">
+		<form action="{{ url_for('lounges.add_lounge_images') }}" method="POST" enctype="multipart/form-data">
+			<input type="hidden" name="lounge_id" value="{{ lounge.id }}" />
+			<input type="file" name="images" multiple required />
+			<button type="submit" class="submit-btn">Add Images</button>
+		</form>
+	</div>
+		{% if lounge.status != "Closed" %}
+			<div class="form-body">
+				<form action="{{ url_for('lounges.close_lounge') }}" method="POST">
+					<input type="hidden" name="lounge_id" value="{{ lounge.id }}">
+					<button type="submit" class="close">
+						<span aria-hidden="true">Close Lounge</span>
+					</button>
+				</form>
+			</div>
+		{% endif %}
+	{% endif %}
+
+<!-- MODAL STRUCTURE FOR IMAGE CAROUSEL -->
+<div id="imageModal" class="modal">
+	<button class="close" onclick="close_modal()" aria-hidden="true">&times;</button>
+	<img class="modal-content" id="modalImage" />
+	<a class="arrows" aria-hidden="true" onclick="change_image(-1)">&lt;</a>
+	<a class="arrows" aria-hidden="true" onclick="change_image(1)">&gt;</a>
+</div>
+
+<script>
+	var modal = document.getElementById("imageModal");
+    var modalImg = document.getElementById("modalImage");
+    var currentImageIndex = 0;
+    var images = JSON.parse('{{ lounge_images | tojson }}'); // Pass the images to JavaScript context
+
+    function open_modal() {
+    	currentImageIndex = 0;
+    	modal.style.display = "block";
+    	modalImg.src = "{{ url_for('static', filename='') }}" + images[currentImageIndex];
+    }
+
+    function close_modal() {
+    	modal.style.display = "none";
+    }
+
+    function change_image(direction) {
+    	currentImageIndex += direction;
+    	if (currentImageIndex < 0) {
+    		currentImageIndex = images.length - 1;
+    	} else if (currentImageIndex >= images.length) {
+    		currentImageIndex = 0;
+    	}
+    	update_modal_image();
+    }
+
+    function update_modal_image() {
+      modalImg.src = "{{ url_for('static', filename='') }}" + images[currentImageIndex];
+    }
+
+</script>
+
+{% endblock %}
