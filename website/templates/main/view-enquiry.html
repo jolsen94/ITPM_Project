@@ -1,0 +1,77 @@
+{% extends "main/base.html" %} 
+{% block title %}Enquiry Details{% endblock %} 
+
+{% block content %}
+
+<h1>Enquiry Thread</h1>
+
+<div class="notes-div">
+	<ul class="note-list">
+		<li class="notes">
+			<b>Topic: </b>{{ enquiry.topic }}
+			<br />
+			<b>Message: </b>{{ enquiry.message }}
+			<br />
+			<h3>User Details</h3>
+			{% if enquiry.user_id %}
+				<b>Name: </b>{{ enquiry.user.first_name }} {{ enquiry.user.last_name }}
+				<br />
+				<b>Email: </b>{{ enquiry.user.email }}
+				<br />
+				<b>Phone: </b>{{ enquiry.user.phone }}
+				<br />
+			{% else %}
+				<h3>The user has deleted their account. Future replies will not be delivered through this system.</h3>
+			{% endif %}
+		</li>
+	</ul>
+</div>
+
+<h1>Replies</h1>
+<div class="notes-div">
+    <ul class="note-list">
+        {% if replies %} 
+			{% for reply in replies %}
+				<li class="notes">
+					<div id="message_div_{{ reply.id }}"></div>
+					<p>{{ reply.content }}</p>
+					{% if reply.user_id %}
+						<p>By {{ reply.user.first_name }} on {{ reply.date_created }}</p>
+					{% else %}
+						<p>By <span style="color:red">User Deleted</span> on {{ reply.date_created }}</p>
+					{% endif %}
+				</li>
+			{% endfor %}
+        {% endif %}
+		<button class="submit-btn" onclick="open_details_modal()">Reply</button>
+    </ul>
+</div>
+
+<div class="form-body">
+	<form method="POST" action="{{ url_for('views.delete_enquiry') }}">
+		<input type="hidden" name="enquiry_id" value="{{ enquiry.id }}" />
+		<button class="submit-btn" type="submit">Close Enquiry</button>
+	</form>
+</div>
+
+<div id="detailsModal" class="modal">
+	<div class="modal-content">
+		<button class="close" onclick="close_details_modal()" aria-hidden="true">&times;</button>
+		<div class="form-body">
+			<form method="POST" action="{{ url_for('views.create_reply') }}">
+				<input type="hidden" name="user_id" value="{{ user.id }}" />
+				<input type="hidden" name="enquiry_id" value="{{ enquiry.id }}" />
+				<div class="form">
+					<label for="reply">Reply: 
+					<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<textarea id="message" name="content" rows="5" style="height: auto;" maxlength="2000"></textarea>
+					<div id="char_count">0 / 2000</div>
+				</div>
+				<button type="submit" class="submit-btn">Add Reply</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

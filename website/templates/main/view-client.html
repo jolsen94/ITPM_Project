@@ -1,0 +1,160 @@
+{% extends "main/base.html" %} 
+{% block title %}Client Details{% endblock %} 
+
+{% block content %}
+
+<div>
+	<h1>Client ID: {{ client.id }}</h1>
+	<b>Client Name:</b> {{ client.first_name }} {{ client.last_name }}
+	<br />
+	<b>Client Address:</b> {{ client.address }}, {{ client.locality }}, {{ client.state }} {{ client.postcode }}
+	<br />
+	<b>Client Email:</b> {{ client.email }}
+	<br />
+	<b>Client Phone:</b> {{ client.phone }}
+	<br />
+	<h1>Client Bookings</h1>
+	{% if bookings %}
+		<div class="notes-div">
+			<ul class="note-list">
+				{% for booking in bookings %}
+					<li class="note">
+						<a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}">
+							<b>From:</b> {{ booking.entry_date }}  ||  <b>To:</b> {{ booking.exit_date }}
+							<br />
+							<b>Lounge ID:</b> {{ booking.lounge.id }}
+							<br />
+							{{ booking.lounge.address }}, {{ booking.lounge.locality }}, {{ booking.lounge.state }} {{ booking.lounge.postcode }}
+							<br />
+							<b>Status:</b> {{ booking.status }}
+						</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	{% else %}
+	<p>No Bookings found for this client.</p>
+	{% endif %}
+	
+	<h3>Select a lounge to make a new booking</h3>
+	<div class="notes-div">
+		<ul class="note-list">
+			{% for data in lounges %}
+				{% set lounge = data.lounge %}
+				<li style="cursor:pointer"
+					class="note" 
+					onclick="open_modal(this)" 
+					data-id="{{ lounge.id }}"
+					data-address="{{ lounge.address }}" 
+					data-locality="{{ lounge.locality }}" 
+					data-state="{{ lounge.state }}" 
+					data-postcode="{{ lounge.postcode }}" 
+					data-max_capacity="{{ lounge.max_capacity }}"
+					data-current_capacity="{{ data.current_capacity }}"
+					data-remaining_capacity="{{ data.remaining_capacity }}">
+					<b>Lounge ID: {{ lounge.id }}</b>
+					{{ lounge.address }}, {{ lounge.locality }}, {{ lounge.state }} {{ lounge.postcode }}
+					<br />
+					Current Lounge Availability: {{ data.current_capacity }} / {{ lounge.max_capacity }}
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+</div>
+
+<div id="detailsModal" class="modal">
+	<div class="modal-content">
+		<button class="close" onclick="close_details_modal()" aria-hidden="true">&times;</button>
+		<h3>Booking Details</h3>
+		<div class="form-body">
+			<form method="POST">
+				<input type="hidden" name="client_id", value="{{ client.id }}" />
+				<input type="hidden" name="travel_agent_license", value="{{ user.travel_agent_license }}" />
+				<input type="hidden" name="lounge_id" id="lounge_id" />
+				<div class="form">
+					<label for="entry_date">Entry Date
+					<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<input type="date" name="entry_date" required />
+				</div>
+				<div class="form">
+					<label for="exit_date">Exit Date
+					<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<input type="date" name="exit_date" required />
+				</div>
+				
+				<div class="form">
+					<label for="guests_qty">Number of Guests
+					<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<input type="number" name="guests_qty" required min="1" 
+					max="0" />
+				</div>
+				
+				<div class="form">
+					<label for="flight_id">Flight ID
+					<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<input type="text" name="flight_id" required />
+				</div>
+				<div class="form">
+					<label for="dietary_req">Dietary Requirements
+						<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<select name="dietary_req" id="dietary_req">
+						<option value="none" selected>No requirements</option>
+						<option value="vegetarian">Vegetarian</option>
+						<option value="vegan">Vegan</option>
+						<option value="gluten_free">Gluten-Free</option>
+						<option value="dairy_free">Dairy-Free</option>
+						<option value="nut_allergy">Nut Allergy</option>
+					</select>
+				</div>
+				<br />
+				<button type="submit" class="submit-btn">Submit</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script defer>
+    var modal = document.getElementById("detailsModal");
+    var remainingCapacity = 0; // Global variable to store remaining capacity
+
+    function open_modal(element) {
+        const loungeId = element.getAttribute('data-id');
+        const address = element.getAttribute('data-address');
+        const locality = element.getAttribute('data-locality');
+        const state = element.getAttribute('data-state');
+        const postcode = element.getAttribute('data-postcode');
+        const maxCapacity = parseInt(element.getAttribute('data-max_capacity'), 10);
+        const currentCapacity = parseInt(element.getAttribute('data-current_capacity'), 10);
+
+        remainingCapacity = maxCapacity - currentCapacity; // Update the global remaining capacity
+
+        document.getElementById('lounge_id').value = loungeId;
+		
+		const guestsInput = document.querySelector('input[name="guests_qty"]');
+		guestsInput.max = remainingCapacity;
+		guestsInput.value = '';
+
+        // Update availability text
+        document.querySelector(".modal h3").innerHTML = `Current Lounge Availability: ${currentCapacity} / ${maxCapacity} (${remainingCapacity} spots remaining)`;
+
+        // Open the modal
+        modal.style.display = "block";
+    }
+
+	const guestsInput = document.querySelector('input[name="guests_qty"]');
+
+	guestsInput.addEventListener('input', function () {
+		const currentValue = parseInt(guestsInput.value, 10) || 0; // Ensure a valid number
+		if (currentValue > remainingCapacity) {
+			alert(`Maximum capacity is ${remainingCapacity}. Please reduce the number of guests.`);
+			guestsInput.value = remainingCapacity; // Reset value to max available capacity
+		}
+	});
+</script>
+
+{% endblock %}

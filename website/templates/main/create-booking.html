@@ -1,0 +1,107 @@
+{% extends "main/base.html" %} 
+
+{% block title %}Create Booking{% endblock %} 
+
+{% block content %}
+
+<h1>Make A Booking!</h1>
+<h3>Lounge Details:</h3>
+<div class="form">
+	<label for="address">Address: </label>
+	<input type="text" name="lounge_addr" value="{{ lounge.address }}" readonly />
+</div>
+<div class="form">
+	<label for="postcode">Postcode: </label>
+	<input type="text" name="lounge_postcode" value="{{ lounge.postcode }}" readonly />
+</div>
+<div class="form">
+	<label for="state">State: </label>
+	<input type="text" name="lounge_state" value="{{ lounge.state }}" readonly />
+</div>
+<h3>Current Lounge Availability: {{ current_capacity }} / {{ lounge.max_capacity }}<br />
+({{ remaining_capacity }} spots left!)</h3>
+{% if lounge_images %}
+<div class="img-container">
+	<img class="event-pic"
+		src="{{ url_for('static', filename=lounge_images[0]) }}"
+		onclick="open_image_modal()" />
+	{% if lounge_images | length > 1 %}
+	<div class="image-overlay">+{{ lounge_images | length - 1 }}</div>
+	{% endif %}
+</div>
+{% endif %}
+
+<h3>Booking Details</h3>
+<div class="form-body">
+    <form method="POST">
+		<input type="hidden" name="user_id", value="{{ user.id }}" />
+		<input type="hidden" name="travel_agent_license", value="{{ user.travel_agent_license }}" />
+        <div class="form">
+            <label for="entry_date">Entry Date
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+            <input type="date" name="entry_date" required />
+        </div>
+        <div class="form">
+            <label for="exit_date">Exit Date
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+            <input type="date" name="exit_date" required />
+        </div>
+		
+		<div class="form">
+            <label for="guests_qty">Number of Guests
+            <span style="color: red; font-style: italic">&#42;</span>
+            </label>
+            <input type="number" name="guests_qty" required min="1" max="{{ remaining_capacity }}" />
+        </div>
+		<span id="capacity-info" style="color: green; font-size: small;">
+			Maximum allowed guests: {{ remaining_capacity }}
+		</span>
+		
+        <div class="form">
+            <label for="flight_id">Flight ID
+			<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+            <input type="text" name="flight_id" required />
+        </div>
+        <div class="form">
+			<label for="dietary_req">Dietary Requirements
+				<span style="color: red; font-style: italic">&#42;</span>
+			</label>
+			<select name="dietary_req" id="dietary_req">
+				<option value="none" selected>No requirements</option>
+				<option value="vegetarian">Vegetarian</option>
+				<option value="vegan">Vegan</option>
+				<option value="gluten_free">Gluten-Free</option>
+				<option value="dairy_free">Dairy-Free</option>
+				<option value="nut_allergy">Nut Allergy</option>
+			</select>
+		</div>
+        <br />
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+</div>
+
+<!-- MODAL STRUCTURE FOR IMAGE CAROUSEL -->
+<div id="imageModal" class="modal" data-images='{{ lounge_images | tojson }}'>
+    <button class="close" onclick="close_image_modal()" aria-hidden="true">&times;</button>
+    <img class="modal-content" id="modalImage" />
+    <a class="arrows" aria-hidden="true" onclick="change_image(-1)">&lt;</a>
+    <a class="arrows" aria-hidden="true" onclick="change_image(1)">&gt;</a>
+</div>
+
+<script defer>
+	const guestsInput = document.querySelector('input[name="guests_qty"]');
+	const maxCapacity = parseInt(guestsInput.getAttribute('max'), 10);
+
+	guestsInput.addEventListener('input', function () {
+		const currentValue = parseInt(guestsInput.value, 10);
+		if (currentValue > maxCapacity) {
+			alert(`Maximum capacity is ${maxCapacity}. Please reduce the number of guests.`);
+			guestsInput.value = maxCapacity; // Reset value to max capacity
+		}
+	});
+</script>
+
+{% endblock %}
