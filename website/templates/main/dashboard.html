@@ -25,13 +25,13 @@
 <br />
 
 <div class="navbar-collapse">
-    <a href="/remove-account">Remove Account</a>
-    <a href="/reset-password">Reset Password</a>
+    <h3><a href="/remove-account" class="dash-links">Remove Account</a></h3>
+    <h3><a href="/reset-password" class="dash-links">Reset Password</a></h3>
 </div>
 
-<div id="change_details_modal" class="modal">
+<div id="detailsModal" class="modal">
 	<div class="modal-content">
-		<button class="close" onclick="close_modal()" aria-hidden="true">&times;</button>
+		<button class="close" onclick="close_details_modal()" aria-hidden="true">&times;</button>
 		<div class="form-body">
 			<form method="POST" action="{{ url_for('auth.change_details') }}">
 				
@@ -83,105 +83,64 @@
 	</div>
 </div>
 
-<script>
-	var modal = document.getElementById("change_details_modal");
+<script defer>
+	var email_field = document.getElementById("email");
+	var checkbox_div = document.getElementById("email_change_checkbox");
+	var is_subscribed = {{ 'true' if is_subscribed else 'false' }}	// injected from common variables
 
-	document.addEventListener("DOMContentLoaded", function () {
-		var email_field = document.getElementById("email");
-		var checkbox_div = document.getElementById("email_change_checkbox");
-		var is_subscribed = {{ 'true' if is_subscribed else 'false' }}	// injected from common variables
+	email_field.addEventListener("input", function() {
+		checkbox_div.innerHTML = "";
 
-		email_field.addEventListener("input", function() {
-			checkbox_div.innerHTML = "";
+		if (email_field.value !== "{{ user.email }}") {
+			if (is_subscribed) {
+				var label = document.createElement("label");
+				label.setAttribute("for", "sub_email_change");
+				label.textContent = "Update Subscription Email? ";
 
-			if (email_field.value !== "{{ user.email }}") {
-				if (is_subscribed) {
-					var label = document.createElement("label");
-					label.setAttribute("for", "sub_email_change");
-					label.textContent = "Update Subscription Email? ";
+				var input = document.createElement("input");
+				input.type = "checkbox";
+				input.name = "sub_email_change";
+				input.id = "sub_email_change";
+				input.checked = true;
 
-					var input = document.createElement("input");
-					input.type = "checkbox";
-					input.name = "sub_email_change";
-					input.id = "sub_email_change";
-					input.checked = true;
-
-					checkbox_div.appendChild(label);
-					checkbox_div.appendChild(input);
-				}
+				checkbox_div.appendChild(label);
+				checkbox_div.appendChild(input);
 			}
-		});
+		}
 	});
 	
-	document.addEventListener("DOMContentLoaded", function () {
 	fetch("/static/suburbs.json")
     .then((response) => response.json())
     .then((data) => {
-      const postcodeField = document.getElementById("postcode");
-      const stateField = document.getElementById("state");
-      const localitySelect = document.getElementById("locality");
+		const postcodeField = document.getElementById("postcode");
+		const stateField = document.getElementById("state");
+		const localitySelect = document.getElementById("locality");
 
-      // Set initial state for user (replace 'userLocality' and 'userPostcode' with dynamic server-side data)
-      const userLocality = "{{ user.locality }}"; // Pre-populate from backend
-      const userPostcode = "{{ user.postcode }}"; // Pre-populate from backend
-      
-      if (userPostcode && userLocality) {
-        // Pre-populate state and locality based on user's details
-        const filteredLocalities = data.filter((entry) => entry.postcode === userPostcode);
-        if (filteredLocalities.length > 0) {
-          stateField.value = filteredLocalities[0].state;
+		// Set initial state for user (replace 'userLocality' and 'userPostcode' with dynamic server-side data)
+		const userLocality = "{{ user.locality }}"; // Pre-populate from backend
+		const userPostcode = "{{ user.postcode }}"; // Pre-populate from backend
 
-          // Populate dropdown with options
-          localitySelect.innerHTML = '<option value="">Select Suburb</option>';
-          filteredLocalities.forEach((entry) => {
-            const option = document.createElement("option");
-            option.value = entry.locality;
-            option.text = entry.locality;
-            if (entry.locality === userLocality) {
-              option.selected = true; // Pre-select user's locality
-            }
-            localitySelect.appendChild(option);
-          });
-        }
-      }
+		if (userPostcode && userLocality) {
+			// Pre-populate state and locality based on user's details
+			const filteredLocalities = data.filter((entry) => entry.postcode === userPostcode);
+			if (filteredLocalities.length > 0) {
+				stateField.value = filteredLocalities[0].state;
 
-      if (postcodeField) {
-        // Auto-fill functionality for postcode input changes
-        postcodeField.addEventListener("input", function () {
-          const postcode = this.value.trim(); // Get and trim the entered postcode
-          localitySelect.innerHTML = '<option value="">Select Suburb</option>'; // Reset options
-
-          const filteredLocalities = data.filter((entry) => entry.postcode === postcode);
-
-          if (filteredLocalities.length > 0) {
-            stateField.value = filteredLocalities[0].state; // Set state value
-
-            filteredLocalities.forEach((entry) => {
-              const option = document.createElement("option");
-              option.value = entry.locality;
-              option.text = entry.locality;
-              localitySelect.appendChild(option); // Append each locality option
-            });
-          }
-        });
-      }
+				// Populate dropdown with options
+				localitySelect.innerHTML = '<option value="">Select Suburb</option>';
+				filteredLocalities.forEach((entry) => {
+					const option = document.createElement("option");
+					option.value = entry.locality;
+					option.text = entry.locality;
+					if (entry.locality === userLocality) {
+						option.selected = true; // Pre-select user's locality
+					}
+					localitySelect.appendChild(option);
+				});
+			}
+		}
     })
     .catch((error) => console.error("Error fetching suburb data:", error));
-	});
-
-	function open_modal() {
-		modal.style.display = "block";
-	}
-
-	function close_modal() { 
-		modal.style.display = "none";
-	}
-
-	window.onclick = function(event) {
-		if (event.target == modal) {
-			close_modal(modal)
-		}
-	}
 </script>
 
 {% endblock %}
