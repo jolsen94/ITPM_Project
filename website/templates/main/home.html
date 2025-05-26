@@ -11,7 +11,7 @@
         type="text" 
         id="loungeSearch" 
         placeholder="Search for lounges (e.g., address, locality, state)" 
-        style="width: 100%; padding: 10px; margin-bottom: 20px;" 
+        style="width: 96%; padding: 10px; margin-bottom: 20px;" 
     />
 </div>
 
@@ -101,7 +101,7 @@
         type="text" 
         id="agentSearch" 
         placeholder="Search for lounges (e.g., address, locality, state)" 
-        style="width: 100%; padding: 10px; margin-bottom: 20px;" 
+        style="width: 96%; padding: 10px; margin-bottom: 20px;" 
     />
 </div>
 
@@ -130,37 +130,5 @@
 		{% endfor %}
 	</ul>
 </div>
-
-<script>
-	document.addEventListener("DOMContentLoaded", () => {
-		const searchInput = document.getElementById("loungeSearch");
-		const loungeList = document.getElementById("loungeList");
-
-		searchInput.addEventListener("input", function () {
-			const searchQuery = searchInput.value.toLowerCase().trim();
-
-			// Filter items directly from loungeList
-			Array.from(loungeList.getElementsByTagName("li")).forEach(item => {
-				const loungeText = item.textContent.toLowerCase();
-				item.style.display = loungeText.includes(searchQuery) ? "block" : "none";
-			});
-		});
-	});
-
-	document.addEventListener("DOMContentLoaded", () => {
-		const searchInput = document.getElementById("agentSearch");
-		const agentList = document.getElementById("agentList");
-
-		searchInput.addEventListener("input", function () {
-			const searchQuery = searchInput.value.toLowerCase().trim();
-
-			// Filter items directly from agentList
-			Array.from(agentList.getElementsByTagName("li")).forEach(item => {
-				const loungeText = item.textContent.toLowerCase();
-				item.style.display = loungeText.includes(searchQuery) ? "block" : "none";
-			});
-		});
-	});
-</script>
 
 {% endblock %}
