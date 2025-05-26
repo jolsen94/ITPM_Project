@@ -6,6 +6,11 @@ Orange = #f5641e
 */
 
 body {
+	background-image: url(../images/background_lounge.jpeg);
+	background-size: cover;
+    	background-repeat: no-repeat;
+    	background-attachment: fixed;
+    	background-position: center;
 	background-color: white;
 	font-family: 'Lora', sans-serif;
 	font-size: 1rem;
@@ -24,12 +29,14 @@ body {
 .navbar-collapse {
 	justify-content: space-between;
 	display: flex;
-	margin: 0px 180px 0px 180px;
 	align-items: center;
 }
 
 .nav {
-	margin: 40px;
+	margin:40px;
+	gap: 10px;
+	display: flex;
+	flex-wrap: wrap;
 }
 
 .nav-item {
@@ -95,6 +102,13 @@ button {
 	border-radius: 8px;
 }
 
+.dash-links {
+	background-color: rgb(240, 239, 239);
+	padding: 5px 15px;
+	border-radius: 8px;
+	margin: 10px 0;
+}
+
 /* <-------- FONTS, PARAGRAPHS, AND FORMS -------> */
 
 input[readonly] {
@@ -105,9 +119,19 @@ input[readonly] {
 h1, h3 {
 	color: rgb(0, 0, 0);
 	text-align: center;
+	background-color: rgb(240, 239, 239);
+	padding: 5px;
+	display: block;
+	border-radius: 8px;
+	margin: 15px auto;
+	width: fit-content;
 }
 
 p {
+	background-color: white;
+	padding: 10px 20px;
+	border-radius: 8px;
+	display: inline-block;
 	
 }
 
