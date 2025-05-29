@@ -1,0 +1,21 @@
+{% block profile %}
+
+<h1>Client Window</h1>
+
+<div class="notes-div">
+	<ul class="note-list">
+		{% for client in clients %}
+			<li class="note">
+				<a href="{{ url_for('auth.view_client', client_id=client.id) }}">
+					<b>Client ID: </b>{{ client.id }}
+					<br />
+					{{ client.first_name }} {{ client.last_name }}
+					<br />
+					{{ client.address }}, {{ client.locality }}, {{ client.state }} {{ client.postcode }}
+				</a>
+			</li>
+		{% endfor %}
+	</ul>
+</div>
+
+{% endblock %}

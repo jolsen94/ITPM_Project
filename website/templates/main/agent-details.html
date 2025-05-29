@@ -1,0 +1,106 @@
+{% extends "main/base.html" %} 
+{% block title %}Travel Agent Details{% endblock %} 
+
+{% block content %}
+
+    <div>
+        <h1>{{ agent.company }}</h1>
+        <p>License: {{ agent.license }}</p>
+		<p>{{ agent.description }}</p>
+		
+		{% if user.is_authenticated %}
+        <div class="form-body">
+            <button type="submit" class="submit-btn" 
+				onclick="open_details_modal()">Make an enquiry
+			</button>
+        </div>
+		{% else %}
+		<div class="form-body">
+			<a href="{{ url_for('auth.login') }}">
+				<button type="submit" class="submit-btn">Login to send an Enquiry!</button>
+			</a>
+		</div>
+		{% endif %}
+    </div>
+	
+	<br />
+
+    {% if agent_images %}
+    <div class="img-container">
+        <img class="event-pic"
+            src="{{ url_for('static', filename=agent_images[0]) }}"
+            onclick="open_image_modal()" />
+        {% if agent_images | length > 1 %}
+        <div class="image-overlay">+{{ agent_images | length - 1 }}</div>
+        {% endif %}
+    </div>
+	{% endif %}
+
+    {% if user.id == agent.id %}
+    <div class="form-body">
+        <form action="{{ url_for('travel_agents.add_agent_images') }}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="agent_id" value="{{ agent.id }}" />
+            <input type="file" name="images" multiple required />
+            <button type="submit" class="submit-btn">Add Images</button>
+        </form>
+    </div>
+	{% endif %}
+	
+	{% if user.user_type == "admin" %}
+    <div class="form-body">
+    	<form action="{{ url_for('travel_agents.delete_agent') }}" method="POST">
+    		<input type="hidden" name="id" value="{{ agent.id }}">
+    		<button type="submit" class="close">
+    			<span aria-hidden="true">Delete Agent</span>
+    		</button>
+    	</form>
+    </div>
+    {% endif %}
+
+<!-- MODAL STRUCTURE FOR IMAGE CAROUSEL -->
+<div id="imageModal" class="modal" data-images='{{ agent_images | tojson }}'>
+    <button class="close" onclick="close_image_modal()" aria-hidden="true">&times;</button>
+    <img class="modal-content" id="modalImage" />
+    <a class="arrows" aria-hidden="true" onclick="change_image(-1)">&lt;</a>
+    <a class="arrows" aria-hidden="true" onclick="change_image(1)">&gt;</a>
+</div>
+
+<div id="detailsModal" class="modal">
+	<div class="modal-content">
+		<button class="close" onclick="close_details_modal()" aria-hidden="true">&times;</button>
+		<div class="form-body">
+			<form method="POST" action="{{ url_for('views.enquiry') }}">
+				<input type="hidden" name="agent_id" value="{{ agent.id }}" />
+				<input type="hidden" name="user_id" value="{{ user.id }}" />
+				<input type="hidden" name="is_admin" value="False" />
+				<div class="form">
+					<label for="type">Topic
+						<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<select id="topic" name="topic" required>
+						<option value="" disabled selected>Select Topic</option>
+						<option value="account enquiry">Account Enquiry</option>
+						<option value="contact">Contact</option>
+					</select>
+				</div>
+				<div class="form">
+					<label for="message">Message
+					<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<textarea id="message" name="message" rows="5" style="height: auto;" maxlength="2000" required></textarea>
+					<div id="char_count">0 / 2000</div>
+				</div>
+				<div class="form">
+					<label for="agree"
+						>I agree to being contacted to resolve this enquiry
+						<span style="color: red; font-style: italic">&#42;</span>
+					</label>
+					<input type="checkbox" id="agree" name="agree" required checked />
+				</div>
+				<button type="submit" id="submitEnquiry" class="submit-btn">Submit Enquiry</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
