@@ -1,5 +1,5 @@
-# ITPM-Project-Complete
-This is the complete and working project
+# ITPM-Project
+This is the Finished project's working directory 
 
 TO RUN:
 On your terminal, navigate into the directory where main.py is located, and run command `python main.py`
